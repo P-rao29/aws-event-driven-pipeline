@@ -7,10 +7,10 @@ resource "aws_lambda_function" "processor" {
   filename         = "../lambda/data_processor.zip"
   source_code_hash = filebase64sha256("../lambda/data_processor.zip")
 environment {
-    variables = {
-      BUCKET_NAME = aws_s3_bucket.data.bucket
-    }
+  variables = {
+    BUCKET_NAME = aws_s3_bucket.data_bucket.bucket
   }
+}
 }
 
 resource "aws_lambda_function" "report" {
