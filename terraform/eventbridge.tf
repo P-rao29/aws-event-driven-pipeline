@@ -14,3 +14,24 @@ resource "aws_lambda_permission" "allow_eventbridge" {
   principal     = "events.amazonaws.com"
   source_arn    = aws_cloudwatch_event_rule.daily.arn
 }
+resource "aws_cloudwatch_event_rule" "data_ingestion" {
+  name        = "data-ingestion-rule"
+  description = "Triggers data processor Lambda on incoming application events"
+
+  event_pattern = jsonencode({
+    source      = ["custom.application"]
+    detail-type = ["data.created"]
+  })
+}
+
+resource "aws_cloudwatch_event_target" "processor_target" {
+  rule = aws_cloudwatch_event_rule.data_ingestion.name
+  arn  = aws_lambda_function.processor.arn
+}
+
+resource "aws_lambda_permission" "allow_eventbridge_processor" {
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.processor.function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.data_ingestion.arn
+}
